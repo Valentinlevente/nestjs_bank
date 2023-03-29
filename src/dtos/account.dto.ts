@@ -1,5 +1,12 @@
+import { IsInt, IsNotEmpty, IsString, Length } from 'class-validator';
+
 /* eslint-disable prettier/prettier */
 export default class AccountDto {
-  accountNumber: number;
+  
+  @IsString()
+  @IsNotEmpty()
+  accountNumber: string;
+  @IsNotEmpty()
+  @IsInt()
   balance: number;
 }

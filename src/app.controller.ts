@@ -8,6 +8,7 @@ import { DataSource, Repository } from 'typeorm';
 import { AppService } from './app.service';
 import AccountDto from './dtos/account.dto';
 import OwnerDto from './dtos/owner.dto';
+import TransitionDto from './dtos/transition.dto';
 import { Account } from './entities/account.entity';
 import { Owner } from './entities/owner.entity';
 
@@ -29,7 +30,7 @@ export class AppController {
     const accountRepo = this.dataSource.getRepository(Account);
     const account = new Account();
     account.accountNumber = AccountDto.accountNumber;
-    account.balance = AccountDto.accountNumber;
+    account.balance = AccountDto.balance;
     return await accountRepo.save(account);
   }
 
@@ -99,4 +100,18 @@ export class AppController {
     const account = await accountRepo.findOneBy({ id: id })
     return accountRepo.delete(account);
   }
+
+  @Post('transfer/:sourceId/:targetId')
+  async transfer(@Param('sourceId') sourceId : number, @Param('targetId') targetId : number, @Body() TransitionDto: TransitionDto, ){
+    const accountRepo = this.dataSource.getRepository(Account);
+    const amount: number = TransitionDto.amount; 
+    const sourceAccount =  await accountRepo.findOneBy({id: sourceId}); 
+    const targetAccount =  await accountRepo.findOneBy({id: targetId});
+    sourceAccount.balance -= amount;
+    targetAccount.balance += amount;
+    accountRepo.save(sourceAccount);
+    accountRepo.save(targetAccount);
+
+  }
+
 }
