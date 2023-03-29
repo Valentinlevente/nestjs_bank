@@ -16,5 +16,5 @@ export class Account {
   
   @ManyToOne(() => Owner)
   @JoinColumn({ name: 'ownerId' })
-  product: Owner;
+  owner: Owner;
 }

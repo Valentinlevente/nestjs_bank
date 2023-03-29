@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { Patch } from '@nestjs/common';
 import { Delete } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Param } from '@nestjs/common';
 import { Body, Controller, Get, Post, Render } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -31,6 +33,7 @@ export class AppController {
     const account = new Account();
     account.accountNumber = AccountDto.accountNumber;
     account.balance = AccountDto.balance;
+    account.owner = AccountDto.owner;
     return await accountRepo.save(account);
   }
 
@@ -52,6 +55,7 @@ export class AppController {
     const account = await accountRepo.findOneBy({ id: id });
     account.accountNumber = AccountDto.accountNumber;
     account.balance = AccountDto.balance;
+    account.owner = AccountDto.owner;
 
     return accountRepo.save(account);
   }
@@ -107,6 +111,13 @@ export class AppController {
     const amount: number = TransitionDto.amount; 
     const sourceAccount =  await accountRepo.findOneBy({id: sourceId}); 
     const targetAccount =  await accountRepo.findOneBy({id: targetId});
+      if(sourceAccount == null) {
+        throw new NotFoundException();
+      }
+
+      if((sourceAccount.balance -= amount) < 0){
+        throw new ConflictException();
+      }
     sourceAccount.balance -= amount;
     targetAccount.balance += amount;
     accountRepo.save(sourceAccount);

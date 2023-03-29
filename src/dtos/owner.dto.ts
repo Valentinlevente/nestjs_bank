@@ -9,4 +9,5 @@ export default class OwnerDto {
   @IsBoolean()
   @IsNotEmpty()
   business: boolean;
+
 }
